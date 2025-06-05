@@ -9,10 +9,12 @@ const __dirname = path.dirname(__filename);
 
 // create a new client instance
 const client = new Client({intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]});
+
+// find all commands
+// commands stored exactly two directories down (e.g., ./commands/main/bookmark.js)
 client.commands = new Collection()
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
-
 for (const folder of commandFolders){
     const commandsPath = path.join(foldersPath, folder);
     const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
@@ -29,9 +31,10 @@ for (const folder of commandFolders){
     }
 }
 
+// find all events
+// events stored exactly one directory down (e.g., ./events/ready.js)
 const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
-
 for (const file of eventFiles){
     const filePath = path.join(eventsPath, file);
     const event = (await import(filePath)).event;
