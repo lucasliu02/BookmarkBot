@@ -1,21 +1,26 @@
-const js = require('@eslint/js');
+import { defineConfig } from 'eslint/config';
+import js from '@eslint/js';
 
-module.exports = [
-	js.configs.recommended,
+export default defineConfig([
 	{
+  		files: ["**/*.{js,mjs,cjs}"],
+		plugins: { js },
 		languageOptions: {
 			ecmaVersion: 'latest',
 		},
+		extends: ["js/recommended"] 
+	},
+	{
 		rules: {
 			'arrow-spacing': ['warn', { before: true, after: true }],
-			'brace-style': ['error', 'stroustrup', { allowSingleLine: true }],
+			'brace-style': ['error', '1tbs', { allowSingleLine: true }],
 			'comma-dangle': ['error', 'always-multiline'],
 			'comma-spacing': 'error',
 			'comma-style': 'error',
 			curly: ['error', 'multi-line', 'consistent'],
 			'dot-location': ['error', 'property'],
 			'handle-callback-err': 'off',
-			indent: ['error', 'tab'],
+			indent: ['error', 4],
 			'keyword-spacing': 'error',
 			'max-nested-callbacks': ['error', { max: 4 }],
 			'max-statements-per-line': ['error', { max: 2 }],
@@ -47,4 +52,4 @@ module.exports = [
 			yoda: 'error',
 		},
 	},
-];
+]);

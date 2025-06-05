@@ -1,11 +1,11 @@
-import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from "discord.js";
+import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
 
-export async function editButton(interaction){
-    if(interaction.customId === 'editBtn'){
+export async function buttonInteraction(interaction) {
+    if (interaction.customId === 'editBtn') {
         const editModal = new ModalBuilder()
-        .setCustomId('editModal')
-        .setTitle('Edit Bookmark');
-            
+            .setCustomId('editModal')
+            .setTitle('Edit Bookmark');
+
         const nameInput = new TextInputBuilder()
             .setCustomId('nameInput')
             .setLabel('Bookmark Name:')
@@ -24,11 +24,10 @@ export async function editButton(interaction){
 
         // ensure that only user who triggered interaction can use buttons
         // although shouldn't be necessary b/c ephemeral
-        const collectorFilter = i => i.user.id === interaction.user.id;
         console.log('edit button clicked');
         await interaction.showModal(editModal);
-    }else if(interaction.customId === 'undoBtn'){
+    } else if (interaction.customId === 'undoBtn') {
         console.log('undo utton clicked');
-        await interaction.update({content: `${interaction.targetMessage.url} bookmark deleted`, components: []});
+        await interaction.update({ content: `${interaction.targetMessage.url} bookmark deleted`, components: [] });
     }
 }
