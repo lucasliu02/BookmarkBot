@@ -3,6 +3,9 @@ import { Client, Collection, GatewayIntentBits } from 'discord.js';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import db from './database/database.js';
+import User from './database/User.js';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -44,6 +47,12 @@ for (const file of eventFiles) {
         client.on(event.name, (...args) => event.execute(...args));
     }
 }
+
+// Object.keys(User).forEach(ele => {
+//     User[ele].associate(User);
+// });
+User.associate();
+await db.sync({ force: process.env.FORCE_DB_RESET });
 
 // log in to Discord with client's token
 client.login(process.env.DISCORD_TOKEN);

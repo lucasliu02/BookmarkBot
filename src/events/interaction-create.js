@@ -1,6 +1,6 @@
 import { Events, MessageFlags } from 'discord.js';
-import { buttonInteraction } from '../components/edit-button.js';
-import { modalInteraction } from '../components/edit-modal.js';
+import { buttonHandler } from '../components/button-handler.js';
+import { modalHandler } from '../components/modal-handler.js';
 
 export const event = {
     name: Events.InteractionCreate,
@@ -23,9 +23,9 @@ export const event = {
                 }
             }
         } else if (interaction.isButton()) {
-            buttonInteraction(interaction);
+            buttonHandler(interaction);
         } else if (interaction.isModalSubmit()) {
-            modalInteraction(interaction);
+            modalHandler(interaction);
         }
     },
 };

@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle } from 'discord.js';
 
-export async function buttonInteraction(interaction) {
+export async function buttonHandler(interaction) {
     if (interaction.customId === 'editBtn') {
         const editModal = new ModalBuilder()
             .setCustomId('editModal')
@@ -22,12 +22,12 @@ export async function buttonInteraction(interaction) {
         const secondActionRow = new ActionRowBuilder().addComponents(folderInput);
         editModal.addComponents(firstActionRow, secondActionRow);
 
-        // ensure that only user who triggered interaction can use buttons
-        // although shouldn't be necessary b/c ephemeral
         console.log('edit button clicked');
         await interaction.showModal(editModal);
     } else if (interaction.customId === 'undoBtn') {
         console.log('undo utton clicked');
-        await interaction.update({ content: `${interaction.targetMessage.url} bookmark deleted`, components: [] });
+        console.log(interaction.message.content);
+        await interaction.update({ content: 'undo button clicked', components: [] });
+        // await interaction.update({ content: `${interaction.targetMessage.url} bookmark deleted`, components: [] });
     }
 }
