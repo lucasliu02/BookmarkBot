@@ -1,9 +1,9 @@
-import db from './database.js';
+import db from '../database.js';
 import { Model, DataTypes } from 'sequelize';
 
-class User extends Model {
+export class User extends Model {
     static associate() {
-        console.log('associate');
+        //
     }
 }
 
@@ -12,6 +12,7 @@ User.init(
         discordSnowflake: {
             type: DataTypes.STRING,
             unique: true,
+            primaryKey: true,
         },
     },
     {
@@ -20,5 +21,3 @@ User.init(
         modelName: 'User',
     },
 );
-
-export default User;

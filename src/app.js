@@ -4,7 +4,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import db from './database/database.js';
-import User from './database/User.js';
+// import User from './database/User.js';
+import * as models from './database/models/index.js';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -48,10 +49,11 @@ for (const file of eventFiles) {
     }
 }
 
-// Object.keys(User).forEach(ele => {
-//     User[ele].associate(User);
-// });
-User.associate();
+Object.keys(models).forEach(ele => {
+    models[ele].associate(models);
+});
+// User.associate();
+
 await db.sync({ force: process.env.FORCE_DB_RESET });
 
 // log in to Discord with client's token

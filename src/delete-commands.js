@@ -9,6 +9,6 @@ rest.put(Routes.applicationGuildCommands(process.env.APP_ID, process.env.GUILD_I
     .catch(console.error);
 
 // for global commands
-// rest.put(Routes.applicationCommands(process.env.APP_ID), { body: [] })
-//     .then(() => console.log('Successfully deleted all application commands.'))
-//     .catch(console.error);
+rest.put(Routes.applicationCommands(process.env.APP_ID), { body: [] })
+    .then(() => console.log('Successfully deleted all application commands.'))
+    .catch(console.error);

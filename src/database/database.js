@@ -4,6 +4,7 @@ import { Sequelize } from 'sequelize';
 const sequelize = new Sequelize(process.env.POSTGRES_DB, process.env.POSTGRES_USER, process.env.POSTGRES_PASSWORD, {
     host: process.env.DB_HOST,
     dialect: 'postgres',
+    // logging: console.info, // TODO: set to true
 });
 
 export default sequelize;
@@ -17,11 +18,3 @@ const folders = [
 export function getFolders() {
     return folders;
 }
-
-// export function saveBookmark(link, name, folder) {
-//     //
-// }
-
-// export function printBookmarks() {
-//     //
-// }

@@ -1,6 +1,7 @@
 import { Events, MessageFlags } from 'discord.js';
-import { buttonHandler } from '../components/button-handler.js';
-import { modalHandler } from '../components/modal-handler.js';
+import { buttonHandler } from '../interaction-handlers/button-handler.js';
+import { modalHandler } from '../interaction-handlers/modal-handler.js';
+import { autocompleteHandler } from '../interaction-handlers/autocomplete-handler.js';
 
 export const event = {
     name: Events.InteractionCreate,
@@ -26,6 +27,8 @@ export const event = {
             buttonHandler(interaction);
         } else if (interaction.isModalSubmit()) {
             modalHandler(interaction);
+        } else if (interaction.isAutocomplete()) {
+            autocompleteHandler(interaction);
         }
     },
 };
