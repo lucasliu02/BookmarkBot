@@ -4,7 +4,6 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import db from './database/database.js';
-// import User from './database/User.js';
 import * as models from './database/models/index.js';
 
 
@@ -26,11 +25,11 @@ for (const folder of commandFolders) {
         const filePath = path.join(commandsPath, file);
         const command = (await import(filePath)).command;
         // set a new item in the Collection with the key as the command name and the value as the exported module
-        if (command !== undefined && 'data' in command && 'execute' in command) {
+        if (typeof command !== 'undefined' && 'data' in command && 'execute' in command) {
             client.commands.set(command.data.name, command);
             console.log(`Located ${command.data.name} command`);
         } else {
-            console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+            console.log(`[WARNING] The command at ${filePath} is undefined or missing a required "data" or "execute" property.`);
         }
     }
 }
@@ -54,7 +53,7 @@ Object.keys(models).forEach(ele => {
 });
 // User.associate();
 
-await db.sync({ force: process.env.FORCE_DB_RESET });
+await db.sync({ force: process.env.FORCE_DB_RESET === 'true' });
 
 // log in to Discord with client's token
 client.login(process.env.DISCORD_TOKEN);

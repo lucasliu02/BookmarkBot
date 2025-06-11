@@ -16,13 +16,16 @@ export async function autocompleteHandler(interaction) {
         if (commandName === 'bookmark') {
             const subcommandName = interaction.options.getSubcommand();
             if (subcommandName === 'add') {
+                // find Folder by folder
                 autocompleteOneAttribute(interaction, command, 'folder', Folder);
-            } else if (subcommandName === 'delete') {
+            } else if (subcommandName === 'delete' || subcommandName === 'get') {
+                // find find Bookmark by name
                 autocompleteOneAttribute(interaction, command, 'name', Bookmark);
             }
         } else if (commandName === 'folder') {
             const subcommandName = interaction.options.getSubcommand();
             if (subcommandName === 'delete') {
+                // find Folder by folder
                 autocompleteOneAttribute(interaction, command, 'folder', Folder);
             }
         }

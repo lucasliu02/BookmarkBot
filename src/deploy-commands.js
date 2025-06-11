@@ -19,10 +19,10 @@ for (const folder of commandFolders) {
     for (const file of commandFiles) {
         const filePath = path.join(commandsPath, file);
         const command = (await import(filePath)).command;
-        if ('data' in command && 'execute' in command) {
+        if (typeof command !== 'undefined' && 'data' in command && 'execute' in command) {
             commands.push(command.data.toJSON());
         } else {
-            console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+            console.log(`[WARNING] The command at ${filePath} is undefined or missing a required "data" or "execute" property.`);
         }
     }
 }
@@ -37,8 +37,8 @@ const rest = new REST().setToken(process.env.DISCORD_TOKEN);
 
         // the put method is used to fully refresh all commands in the guild with the current set
         const data = await rest.put(
-            // Routes.applicationCommands(process.env.APP_ID),
-            Routes.applicationGuildCommands(process.env.APP_ID, process.env.GUILD_ID),
+            Routes.applicationCommands(process.env.APP_ID),
+            // Routes.applicationGuildCommands(process.env.APP_ID, process.env.GUILD_ID),
             { body: commands },
         );
         console.log(`Successfully reloaded ${data.length} application (/) commands.`);

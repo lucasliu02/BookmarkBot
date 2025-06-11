@@ -1,7 +1,6 @@
 import db from '../database.js';
 import { Model, DataTypes } from 'sequelize';
 import { User } from './User.js';
-import { Folder } from './Folder.js';
 
 export class Bookmark extends Model {
     static associate() {
