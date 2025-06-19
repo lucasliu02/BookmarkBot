@@ -82,6 +82,7 @@ export const command = {
 };
 
 async function bookmarkAdd(interaction, link, name, folder) {
+    console.log(interaction);
     let isLink;
     try {
         // if input is valid link, set isLink true
@@ -106,6 +107,7 @@ async function bookmarkAdd(interaction, link, name, folder) {
     if (!bookmark) {
         bookmark = await new Bookmark({
             discordSnowflake: interaction.user.id,
+            // messageId: interaction.message
             link: link,
             name: name,
             folder: folder,
@@ -140,12 +142,12 @@ async function bookmarkGet(interaction, name, folder) {
 async function bookmarkDM(interaction) {
     const bookmarks = await Bookmark.findAll({
         where: { discordSnowflake: interaction.user.id },
-        raw: true,
+        // raw: true,
     });
 
     const numDMs = 1; // TODO: temp
     const confirmBtn = new ButtonBuilder()
-        .setCustomId('confirmBtn')
+        .setCustomId('dmConfirmBtn')
         .setLabel('Confirm')
         .setStyle(ButtonStyle.Success);
 
@@ -161,7 +163,5 @@ async function bookmarkDM(interaction) {
         components: [row],
         flags: MessageFlags.Ephemeral,
     });
-    // await interaction.user.send('test');
-    // console.log(interaction);
-    console.log(JSON.stringify(bookmarks));
+    // console.log(JSON.stringify(bookmarks));
 }

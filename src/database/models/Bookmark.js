@@ -3,8 +3,10 @@ import { Model, DataTypes } from 'sequelize';
 import { User } from './User.js';
 
 export class Bookmark extends Model {
-    static associate() {
-        //
+    static associate(models) {
+        // this.belongsTo(models.Folder), {
+        //     foreignKey: 'folder',
+        // };
     }
 }
 
@@ -18,10 +20,14 @@ Bookmark.init(
             },
             primaryKey: true,
         },
+        messageId: {
+            type: DataTypes.STRING,
+            primaryKey: true,
+        },
         link: {
             type: DataTypes.STRING,
             // unique: true,
-            primaryKey: true,
+            // primaryKey: true,
         },
         name: {
             type: DataTypes.STRING,
@@ -34,7 +40,6 @@ Bookmark.init(
             //     model: Folder,
             //     key: 'id',
             // },
-            allowNull: true,
         },
     },
     {

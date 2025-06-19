@@ -1,7 +1,5 @@
 import { Events, MessageFlags } from 'discord.js';
-import { buttonHandler } from '../interaction-handlers/button-handler.js';
-import { modalHandler } from '../interaction-handlers/modal-handler.js';
-import { autocompleteHandler } from '../interaction-handlers/autocomplete-handler.js';
+import { autocompleteHandler, buttonHandler, modalHandler, selectMenuHandler } from '../interaction-handlers/index.js';
 
 export const event = {
     name: Events.InteractionCreate,
@@ -29,6 +27,8 @@ export const event = {
             modalHandler(interaction);
         } else if (interaction.isAutocomplete()) {
             autocompleteHandler(interaction);
+        } else if (interaction.isStringSelectMenu()) {
+            selectMenuHandler(interaction);
         }
     },
 };

@@ -1,8 +1,8 @@
-import { ActionRowBuilder, MessageFlags, ModalBuilder, TextInputBuilder, TextInputStyle, EmbedBuilder } from 'discord.js';
-import { Bookmark } from '../database/models/index.js';
+import { ActionRowBuilder, MessageFlags, ModalBuilder, TextInputBuilder, TextInputStyle, EmbedBuilder, StringSelectMenuBuilder } from 'discord.js';
+import { Bookmark, Folder } from '../database/models/index.js';
+import { getFolderNames } from '../commands/main/manage-folders.js';
 
 export async function buttonHandler(interaction) {
-    // if (interaction.customId === 'editBtn') {
     switch (interaction.customId) {
     // case 'editBtn': {
     //     const editModal = new ModalBuilder()
@@ -29,68 +29,63 @@ export async function buttonHandler(interaction) {
     //     await interaction.showModal(editModal);
     //     break;
     // }
-    // // } else if (interaction.customId === 'undoBtn') {
-    // case 'undoBtn':
-    //     console.log('undo button clicked');
-    //     console.log(interaction.message.content);
-    //     await interaction.update({ content: 'undo button clicked', components: [] });
-    //     // await interaction.update({ content: `${interaction.targetMessage.url} bookmark deleted`, components: [] });
-    //     break;
-    case 'confirmBtn': {
-        // ! entire process could likely be simplified if bookmark-folder relationship could be fixed?
-        // TODO: need to also show empty folders, but might be solved by this ^ ?
+    case 'nameBtn': {
+        const nameModal = new ModalBuilder()
+            .setCustomId('nameModal')
+            .setTitle('Name Bookmark');
 
-        // all bookmarks sorted alphabetically by name
+        const nameInput = new TextInputBuilder()
+            .setCustomId('nameInput')
+            .setLabel('Bookmark Name:')
+            .setStyle(TextInputStyle.Short)
+            .setRequired(true);
+
+        const actionRow = new ActionRowBuilder().addComponents(nameInput);
+        nameModal.addComponents(actionRow);
+        await interaction.showModal(nameModal);
+        // await interaction.update({ content: 'implement namebtn', components: [] });
+        break;
+    }
+    case 'undoBtn':
+        await Bookmark.destroy({ where: { discordSnowflake: interaction.user.id, messageId: interaction.message.reference.messageId } });
+        await interaction.deferUpdate();
+        await interaction.deleteReply();
+        break;
+    case 'dmConfirmBtn': {
         const bookmarks = await Bookmark.findAll({
-            where: { discordSnowflake: interaction.user.id },
+            where: {
+                discordSnowflake: interaction.user.id,
+                folder: 'No folder',
+            },
             order: [
                 ['name', 'ASC'],
             ],
-            raw: true,
         });
 
-        // group bookmarks into their folders
-        const unsorted = groupJsonBy(bookmarks, 'folder');
-
-        // sort folders alphabetically
-        const sorted = Object.keys(unsorted).sort().reduce(
-            (obj, key) => {
-                obj[key] = unsorted[key];
-                return obj;
-            },
-            {},
-        );
-        console.log(sorted);
-
-        // TODO: should order messages so no folder is first/last?
-        const embedMsgs = [
-            new EmbedBuilder()
-                .setColor(0x42f545)
-                .setTitle('Bookmarks'),
-        ];
-        for (const folder of Object.keys(sorted)) {
-            let title = folder;
-            if (folder === 'null') {
-                console.log('null folder');
-                title = 'No folder';
-            }
-            const fields = [];
-            for (const bookmark of sorted[folder]) {
+        const fields = [];
+        if (bookmarks.length === 0) {
+            fields.push({ name: 'No bookmarks', value: '' });
+        } else {
+            for (const bookmark of bookmarks) {
                 fields.push({ name: bookmark.name, value: bookmark.link, inline: true });
             }
-            const embed = new EmbedBuilder()
-                .setColor(0x0099FF)
-                .setTitle(title)
-                .addFields(fields);
-            embedMsgs.push(embed);
         }
 
-        await interaction.update({
-            content: interaction.message.content,
-            components: [],
-            flags: MessageFlags.Ephemeral,
-        });
-        await interaction.user.send({ embeds: embedMsgs });
+        const embed = new EmbedBuilder()
+            .setColor(0x0099FF)
+            .setTitle('No folder')
+            .addFields(fields);
+
+        const folderOptions = await getFolderNames(interaction.user.id, 'No folder');
+        const folderSelect = new StringSelectMenuBuilder()
+            .setCustomId('folderSelect')
+            // .setPlaceholder('No folder')
+            .addOptions(folderOptions);
+        const row = new ActionRowBuilder()
+            .addComponents(folderSelect);
+        await interaction.deferUpdate();
+        await interaction.deleteReply();
+        await interaction.user.send({ embeds: [embed], components: [row] });
         break;
     }
     case 'cancelBtn':
@@ -113,3 +108,68 @@ function groupJsonBy(xs, key) {
         return rv;
     }, {});
 };
+
+async function oldDmConfirmBtn(interaction) {
+    // ! entire process could likely be simplified if bookmark-folder relationship could be fixed?
+    // TODO: need to also show empty folders, but might be solved by this ^ ?
+
+    // all bookmarks sorted alphabetically by name
+    const bookmarks = await Bookmark.findAll({
+        where: { discordSnowflake: interaction.user.id },
+        order: [
+            ['name', 'ASC'],
+        ],
+        raw: true,
+    });
+
+    // group bookmarks into their folders
+    const unsorted = groupJsonBy(bookmarks, 'folder');
+
+    // sort folders alphabetically
+    const sorted = Object.keys(unsorted).sort().reduce(
+        (obj, key) => {
+            obj[key] = unsorted[key];
+            return obj;
+        },
+        {},
+    );
+    console.log(sorted);
+
+    // TODO: should order messages so no folder is first/last?
+    const embedMsgs = [
+        new EmbedBuilder()
+            .setColor(0x42f545)
+            .setTitle('Bookmarks'),
+    ];
+    for (const folder of Object.keys(sorted)) {
+        let title = folder;
+        if (folder === 'null') {
+            console.log('null folder');
+            title = 'No folder';
+        }
+        const fields = [];
+        for (const bookmark of sorted[folder]) {
+            fields.push({ name: bookmark.name, value: bookmark.link, inline: true });
+        }
+        const embed = new EmbedBuilder()
+            .setColor(0x0099FF)
+            .setTitle(title)
+            .addFields(fields);
+        embedMsgs.push(embed);
+    }
+
+    const folderOptions = getFolderNames(interaction.user.id, 'No folder');
+    const folderSelect = new StringSelectMenuBuilder()
+        .setCustomId('folderSelect')
+        .addOptions(folderOptions);
+
+    const row = new ActionRowBuilder()
+        .addComponents(folderSelect);
+
+    await interaction.update({
+        content: interaction.message.content,
+        components: [],
+        flags: MessageFlags.Ephemeral,
+    });
+    await interaction.user.send({ embeds: embedMsgs, components: [row] });
+}
