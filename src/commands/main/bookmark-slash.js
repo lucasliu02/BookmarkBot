@@ -67,21 +67,11 @@ export const command = {
             bookmarkDM(interaction);
             break;
         }
-
-        // const subcommand = interaction.options.getSubcommand();
-        // if (subcommand === 'add') {
-        //     bookmarkAdd(interaction, link, name, folder);
-        // } else if (subcommand === 'delete') {
-        //     bookmarkDelete(interaction, link, name);
-        // } else if (subcommand === 'get') {
-        //     bookmarkGet(interaction, name);
-        // } else if (subcommand === 'dm') {
-        //     bookmarkDM(interaction);
-        // }
     },
 };
 
 async function bookmarkAdd(interaction, link, name, folder) {
+    // TODO: maybe remove this command (only allow user to add bookmark via context menu command)?
     console.log(interaction);
     let isLink;
     try {
@@ -136,6 +126,7 @@ async function bookmarkDelete(interaction, link, name) {
 }
 
 async function bookmarkGet(interaction, name, folder) {
+    // TODO
     await interaction.reply({ content: 'implement bookmarkGet', flags: MessageFlags.Ephemeral });
 }
 
@@ -144,8 +135,9 @@ async function bookmarkDM(interaction) {
         where: { discordSnowflake: interaction.user.id },
         // raw: true,
     });
-
-    const numDMs = 1; // TODO: temp
+    // TODO: calculate number of embeds to create based on char limit?
+    // ? unsure if necessary? maybe implement limit on number of bookmarks per folder (one embed worth of chars based on max lengths of bookmark fields)?
+    const numDMs = 1;
     const confirmBtn = new ButtonBuilder()
         .setCustomId('dmConfirmBtn')
         .setLabel('Confirm')

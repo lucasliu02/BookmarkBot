@@ -1,4 +1,4 @@
-import { MessageFlags, SlashCommandBuilder, StringSelectMenuOptionBuilder } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags, SlashCommandBuilder, StringSelectMenuOptionBuilder } from 'discord.js';
 import { Bookmark, Folder, User } from '../../database/models/index.js';
 
 export const command = {
@@ -45,15 +45,15 @@ export const command = {
         let user = await User.findOne({ where: { discordSnowflake: interaction.user.id } });
         if (!user) {
             user = await new User({ discordSnowflake: interaction.user.id }).save();
-            console.log(`saved new user ${interaction.user.id}`);
-        } else { // TODO: remove this
-            console.log('user exists');
         }
-        console.log(interaction);
+        // console.log(interaction);
         switch (interaction.options.getSubcommand()) {
         case 'create': {
             if (folder === 'No folder') {
                 await interaction.reply({ content: 'Invalid folder name', flags: MessageFlags.Ephemeral });
+                return;
+            } else if (folder.indexOf('*') > -1) {
+                await interaction.reply({ content: 'Invalid character "*"', flags: MessageFlags.Ephemeral });
                 return;
             }
             let dbFolder = await Folder.findOne({ where: { discordSnowflake: interaction.user.id, folder: folder } });
@@ -74,15 +74,33 @@ export const command = {
             await interaction.reply({ content: `Bookmark **${bookmark.name}** moved to **${folder}** folder`, flags: MessageFlags.Ephemeral });
             break;
         }
-        case 'delete':
-            // TODO: add confirm button
+        case 'delete': {
+            const confirmBtn = new ButtonBuilder()
+                .setCustomId('deleteFolderBtn')
+                .setLabel('Delete')
+                .setStyle(ButtonStyle.Danger);
+
+            const cancelBtn = new ButtonBuilder()
+                .setCustomId('cancelBtn')
+                .setLabel('Cancel')
+                .setStyle(ButtonStyle.Secondary);
+
+            const row = new ActionRowBuilder()
+                .addComponents(confirmBtn, cancelBtn);
+
+            await interaction.reply({
+                content: `Delete **${folder}** folder?\n*WARNING: This will delete all bookmarks saved under this folder*`,
+                components: [row],
+                flags: MessageFlags.Ephemeral,
+            });
             // ! sequelize doesn't support compound foreign keys?
             // ? > can't set folder as bookmark fk?
             // ? > can't cascade delete bookmarks with folder?
-            await Bookmark.destroy({ where: { discordSnowflake: interaction.user.id, folder: folder } });
-            await Folder.destroy({ where: { discordSnowflake: interaction.user.id, folder: folder } });
-            await interaction.reply({ content: `**${folder}** folder deleted`, flags: MessageFlags.Ephemeral });
+            // await Bookmark.destroy({ where: { discordSnowflake: interaction.user.id, folder: folder } });
+            // await Folder.destroy({ where: { discordSnowflake: interaction.user.id, folder: folder } });
+            // await interaction.reply({ content: `**${folder}** folder deleted`, flags: MessageFlags.Ephemeral });
             break;
+        }
         }
     },
 };

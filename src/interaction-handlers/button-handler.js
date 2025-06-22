@@ -92,6 +92,22 @@ export async function buttonHandler(interaction) {
         await interaction.deferUpdate();
         await interaction.deleteReply();
         break;
+    case 'deleteFolderBtn': {
+        // ! finds folder name by retrieving substring between bold markdown (**)
+        // ? is it not possible to retrieve the string option from the original command?
+        const folder = interaction.message.content.split('**')[1];
+        // ! sequelize doesn't support compound foreign keys?
+        // ? > can't set folder as bookmark fk?
+        // ? > can't cascade delete bookmarks with folder?
+        await Bookmark.destroy({ where: { discordSnowflake: interaction.user.id, folder: folder } });
+        await Folder.destroy({ where: { discordSnowflake: interaction.user.id, folder: folder } });
+        await interaction.update({
+            content: `**${folder}** folder deleted`,
+            components: [],
+            flags: MessageFlags.Ephemeral,
+        });
+        break;
+    }
     }
 }
 
@@ -102,74 +118,74 @@ export async function buttonHandler(interaction) {
  * @param {string} key - JSON key.
  * @returns {JSON} Modified JSON.
  */
-function groupJsonBy(xs, key) {
-    return xs.reduce(function(rv, x) {
-        (rv[x[key]] = rv[x[key]] || []).push(x);
-        return rv;
-    }, {});
-};
+// function groupJsonBy(xs, key) {
+//     return xs.reduce(function(rv, x) {
+//         (rv[x[key]] = rv[x[key]] || []).push(x);
+//         return rv;
+//     }, {});
+// };
 
-async function oldDmConfirmBtn(interaction) {
-    // ! entire process could likely be simplified if bookmark-folder relationship could be fixed?
-    // TODO: need to also show empty folders, but might be solved by this ^ ?
+// async function oldDmConfirmBtn(interaction) {
+//     // ! entire process could likely be simplified if bookmark-folder relationship could be fixed?
+//     // TODO: need to also show empty folders, but might be solved by this ^ ?
 
-    // all bookmarks sorted alphabetically by name
-    const bookmarks = await Bookmark.findAll({
-        where: { discordSnowflake: interaction.user.id },
-        order: [
-            ['name', 'ASC'],
-        ],
-        raw: true,
-    });
+//     // all bookmarks sorted alphabetically by name
+//     const bookmarks = await Bookmark.findAll({
+//         where: { discordSnowflake: interaction.user.id },
+//         order: [
+//             ['name', 'ASC'],
+//         ],
+//         raw: true,
+//     });
 
-    // group bookmarks into their folders
-    const unsorted = groupJsonBy(bookmarks, 'folder');
+//     // group bookmarks into their folders
+//     const unsorted = groupJsonBy(bookmarks, 'folder');
 
-    // sort folders alphabetically
-    const sorted = Object.keys(unsorted).sort().reduce(
-        (obj, key) => {
-            obj[key] = unsorted[key];
-            return obj;
-        },
-        {},
-    );
-    console.log(sorted);
+//     // sort folders alphabetically
+//     const sorted = Object.keys(unsorted).sort().reduce(
+//         (obj, key) => {
+//             obj[key] = unsorted[key];
+//             return obj;
+//         },
+//         {},
+//     );
+//     console.log(sorted);
 
-    // TODO: should order messages so no folder is first/last?
-    const embedMsgs = [
-        new EmbedBuilder()
-            .setColor(0x42f545)
-            .setTitle('Bookmarks'),
-    ];
-    for (const folder of Object.keys(sorted)) {
-        let title = folder;
-        if (folder === 'null') {
-            console.log('null folder');
-            title = 'No folder';
-        }
-        const fields = [];
-        for (const bookmark of sorted[folder]) {
-            fields.push({ name: bookmark.name, value: bookmark.link, inline: true });
-        }
-        const embed = new EmbedBuilder()
-            .setColor(0x0099FF)
-            .setTitle(title)
-            .addFields(fields);
-        embedMsgs.push(embed);
-    }
+//     // TODO: should order messages so no folder is first/last?
+//     const embedMsgs = [
+//         new EmbedBuilder()
+//             .setColor(0x42f545)
+//             .setTitle('Bookmarks'),
+//     ];
+//     for (const folder of Object.keys(sorted)) {
+//         let title = folder;
+//         if (folder === 'null') {
+//             console.log('null folder');
+//             title = 'No folder';
+//         }
+//         const fields = [];
+//         for (const bookmark of sorted[folder]) {
+//             fields.push({ name: bookmark.name, value: bookmark.link, inline: true });
+//         }
+//         const embed = new EmbedBuilder()
+//             .setColor(0x0099FF)
+//             .setTitle(title)
+//             .addFields(fields);
+//         embedMsgs.push(embed);
+//     }
 
-    const folderOptions = getFolderNames(interaction.user.id, 'No folder');
-    const folderSelect = new StringSelectMenuBuilder()
-        .setCustomId('folderSelect')
-        .addOptions(folderOptions);
+//     const folderOptions = getFolderNames(interaction.user.id, 'No folder');
+//     const folderSelect = new StringSelectMenuBuilder()
+//         .setCustomId('folderSelect')
+//         .addOptions(folderOptions);
 
-    const row = new ActionRowBuilder()
-        .addComponents(folderSelect);
+//     const row = new ActionRowBuilder()
+//         .addComponents(folderSelect);
 
-    await interaction.update({
-        content: interaction.message.content,
-        components: [],
-        flags: MessageFlags.Ephemeral,
-    });
-    await interaction.user.send({ embeds: embedMsgs, components: [row] });
-}
+//     await interaction.update({
+//         content: interaction.message.content,
+//         components: [],
+//         flags: MessageFlags.Ephemeral,
+//     });
+//     await interaction.user.send({ embeds: embedMsgs, components: [row] });
+// }

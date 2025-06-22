@@ -1,4 +1,4 @@
-import { ContextMenuCommandBuilder, ApplicationCommandType, MessageFlags, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } from 'discord.js';
+import { ContextMenuCommandBuilder, ApplicationCommandType, MessageFlags, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } from 'discord.js';
 import { Bookmark, Folder, User } from '../../database/models/index.js';
 import { getFolderNames } from './manage-folders.js';
 
@@ -57,7 +57,7 @@ export const command = {
                 .addComponents(folderSet);
 
             await interaction.reply({
-                content: `Bookmark **<no name>** saved under **No folder**:\n${message.url}`,
+                content: `Bookmark **<no name>** saved under folder **No folder**\n${message.url}`,
                 components: [row1, row2],
                 // withResponse: true,
                 flags: MessageFlags.Ephemeral,

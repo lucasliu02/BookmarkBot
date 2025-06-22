@@ -7,9 +7,9 @@ export async function selectMenuHandler(interaction) {
         const folder = interaction.values[0];
         const bookmark = await Bookmark.findOne({ where: { discordSnowflake: interaction.user.id, messageId: interaction.message.reference.messageId } });
         await bookmark.update({ folder: folder });
-        console.log(interaction);
+        // console.log(interaction);
         await interaction.update({
-            content: `Bookmark **${bookmark.name}** saved under **${folder}**\n${bookmark.link}`,
+            content: `Bookmark **${bookmark.name}** saved under folder **${folder}**\n${bookmark.link}`,
             components: interaction.message.components,
             flags: MessageFlags.Ephemeral,
         });
@@ -17,8 +17,8 @@ export async function selectMenuHandler(interaction) {
     }
     case 'folderSelect': {
         const folder = interaction.values[0];
-        console.log('!!!!!!!!!!!!!!');
-        console.log(interaction);
+        // console.log('!!!!!!!!!!!!!!');
+        // console.log(interaction);
         const bookmarks = await Bookmark.findAll({
             where: {
                 discordSnowflake: interaction.user.id,
